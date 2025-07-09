@@ -1,13 +1,12 @@
--- Load the GUI library from GitHub (the 1st script)
-loadstring(game:HttpGet("https://raw.githubusercontent.com/your-username/your-repo/main/ScriptHubLibrary.lua"))()
 
--- Now use it from _G
+loadstring(game:HttpGet(""))()
+
 local gui = _G.ScriptHubLibrary.new()
 
 local win = gui:CreateWindow("Main Hub")
 local tab = win:CreateTab("Scripts")
-local sec = tab:CreateSection("Utilities")
+local section = tab:CreateSection("Utilities")
 
-sec:CreateButton("Say Hello", function()
+section:CreateButton("Say Hello", function()
 	print("Hello from the hub!")
 end)
