@@ -74,7 +74,7 @@ function Library:CreateWindow(title)
 	local win = {}
 
 	local frame = Instance.new("Frame", self.Gui)
-	frame.Size = UDim2.new(0, 360, 0, 400)
+	frame.Size = UDim2.new(0, 500, 0, 260)
 	frame.Position = UDim2.new(0, 100, 0.5, -200)
 	frame.BackgroundColor3 = Theme.Background
 	round(frame)
