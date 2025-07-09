@@ -10,8 +10,8 @@ Library.__index = Library
 
 -- Colors
 local Theme = {
-	Background = Color3.fromRGB(30, 30, 30),
-	TopBar = Color3.fromRGB(50, 50, 50),
+	Background = Color3.fromRGB(60, 60, 60),
+	TopBar = Color3.fromRGB(80, 80, 80),
 	Button = Color3.fromRGB(0, 170, 255),
 	Text = Color3.new(1, 1, 1)
 }
