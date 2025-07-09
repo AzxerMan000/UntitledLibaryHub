@@ -23,7 +23,7 @@ local function round(instance)
 	corner.Parent = instance
 end
 
-local function makeDraggable(frame)
+      makeDraggable(frame)
 	local UIS = game:GetService("UserInputService")
 	local dragging, dragInput, dragStart, startPos
 
