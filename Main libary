@@ -1,0 +1,201 @@
+-- ScriptHubLibrary.lua
+-- Minimized & Modular GUI Library
+
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+local Library = {}
+Library.__index = Library
+
+-- Colors
+local Theme = {
+	Background = Color3.fromRGB(30, 30, 30),
+	TopBar = Color3.fromRGB(50, 50, 50),
+	Button = Color3.fromRGB(0, 170, 255),
+	Text = Color3.new(1, 1, 1)
+}
+
+-- Utils
+local function round(instance)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 6)
+	corner.Parent = instance
+end
+
+local function draggable(frame)
+	local dragging, dragInput, start, pos
+	frame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging, start, pos = true, input.Position, frame.Position
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then dragging = false end
+			end)
+		end
+	end)
+	frame.InputChanged:Connect(function(input)
+		if input == dragInput and dragging then
+			local delta = input.Position - start
+			frame.Position = UDim2.new(pos.X.Scale, pos.X.Offset + delta.X, pos.Y.Scale, pos.Y.Offset + delta.Y)
+		end
+	end)
+end
+
+-- Library.new()
+function Library.new()
+	local self = setmetatable({}, Library)
+	self.Gui = Instance.new("ScreenGui", PlayerGui)
+	self.Gui.Name = "ScriptHub"
+	self.Gui.ResetOnSpawn = false
+	self.Windows = {}
+	return self
+end
+
+-- CreateWindow(title)
+function Library:CreateWindow(title)
+	local win = {}
+
+	local frame = Instance.new("Frame", self.Gui)
+	frame.Size = UDim2.new(0, 360, 0, 400)
+	frame.Position = UDim2.new(0, 100, 0.5, -200)
+	frame.BackgroundColor3 = Theme.Background
+	round(frame)
+	draggable(frame)
+
+	local top = Instance.new("Frame", frame)
+	top.Size = UDim2.new(1, 0, 0, 30)
+	top.BackgroundColor3 = Theme.TopBar
+
+	local label = Instance.new("TextLabel", top)
+	label.Text = title
+	label.Size = UDim2.new(1, -60, 1, 0)
+	label.Position = UDim2.new(0, 10, 0, 0)
+	label.BackgroundTransparency = 1
+	label.Font = Enum.Font.GothamBold
+	label.TextSize = 16
+	label.TextColor3 = Theme.Text
+	label.TextXAlignment = Enum.TextXAlignment.Left
+
+	local toggle = Instance.new("TextButton", top)
+	toggle.Size = UDim2.new(0, 25, 0, 25)
+	toggle.Position = UDim2.new(1, -30, 0, 2)
+	toggle.Text = "-"
+	toggle.BackgroundColor3 = Theme.Button
+	toggle.TextColor3 = Theme.Text
+	toggle.Font = Enum.Font.GothamBold
+	toggle.TextSize = 18
+	round(toggle)
+
+	local tabBar = Instance.new("Frame", frame)
+	tabBar.Size = UDim2.new(1, 0, 0, 35)
+	tabBar.Position = UDim2.new(0, 0, 0, 30)
+	tabBar.BackgroundTransparency = 1
+
+	local tabLayout = Instance.new("UIListLayout", tabBar)
+	tabLayout.FillDirection = Enum.FillDirection.Horizontal
+	tabLayout.Padding = UDim.new(0, 4)
+
+	local content = Instance.new("Frame", frame)
+	content.Size = UDim2.new(1, -20, 1, -75)
+	content.Position = UDim2.new(0, 10, 0, 70)
+	content.BackgroundTransparency = 1
+
+	local minimized = false
+	toggle.MouseButton1Click:Connect(function()
+		minimized = not minimized
+		tabBar.Visible = not minimized
+		content.Visible = not minimized
+		toggle.Text = minimized and "+" or "-"
+	end)
+
+	win.Tabs = {}
+	win.Content = content
+	win.TabBar = tabBar
+	table.insert(self.Windows, win)
+
+	function win:CreateTab(tabName)
+		local tab = {}
+
+		local btn = Instance.new("TextButton", tabBar)
+		btn.Size = UDim2.new(0, 90, 1, 0)
+		btn.Text = tabName
+		btn.Font = Enum.Font.Gotham
+		btn.TextSize = 14
+		btn.TextColor3 = Theme.Text
+		btn.BackgroundColor3 = Theme.TopBar
+		round(btn)
+
+		local tabFrame = Instance.new("Frame", content)
+		tabFrame.Size = UDim2.new(1, 0, 1, 0)
+		tabFrame.Visible = false
+		tabFrame.BackgroundTransparency = 1
+
+		local layout = Instance.new("UIListLayout", tabFrame)
+		layout.SortOrder = Enum.SortOrder.LayoutOrder
+		layout.Padding = UDim.new(0, 8)
+
+		btn.MouseButton1Click:Connect(function()
+			for _, t in pairs(win.Tabs) do
+				t.Frame.Visible = false
+			end
+			tabFrame.Visible = true
+		end)
+
+		tab.Frame = tabFrame
+		tab.Sections = {}
+		table.insert(win.Tabs, tab)
+
+		if #win.Tabs == 1 then tabFrame.Visible = true end
+
+		function tab:CreateSection(title)
+			local sec = {}
+
+			local secFrame = Instance.new("Frame", tabFrame)
+			secFrame.Size = UDim2.new(1, 0, 0, 60)
+			secFrame.BackgroundColor3 = Theme.TopBar
+			round(secFrame)
+
+			local secTitle = Instance.new("TextLabel", secFrame)
+			secTitle.Text = title
+			secTitle.Font = Enum.Font.GothamBold
+			secTitle.TextSize = 14
+			secTitle.TextColor3 = Theme.Text
+			secTitle.Size = UDim2.new(1, -20, 0, 20)
+			secTitle.Position = UDim2.new(0, 10, 0, 5)
+			secTitle.BackgroundTransparency = 1
+			secTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+			local btnHolder = Instance.new("Frame", secFrame)
+			btnHolder.Size = UDim2.new(1, -20, 0, 35)
+			btnHolder.Position = UDim2.new(0, 10, 0, 25)
+			btnHolder.BackgroundTransparency = 1
+
+			local btnLayout = Instance.new("UIListLayout", btnHolder)
+			btnLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			btnLayout.Padding = UDim.new(0, 6)
+
+			function sec:CreateButton(text, callback)
+				local b = Instance.new("TextButton", btnHolder)
+				b.Size = UDim2.new(1, 0, 0, 28)
+				b.BackgroundColor3 = Theme.Button
+				b.Font = Enum.Font.Gotham
+				b.TextSize = 14
+				b.TextColor3 = Theme.Text
+				b.Text = text
+				round(b)
+
+				b.MouseButton1Click:Connect(function()
+					if callback then callback() end
+				end)
+			end
+
+			return sec
+		end
+
+		return tab
+	end
+
+	return win
+end
+
+_G.ScriptHubLibrary = Library
